@@ -14,9 +14,9 @@ class UploadHelper extends AppHelper {
 
 
 	public function view ($model, $id) {
-		
-		require_once (CORE_PATH . "/Plugin/AjaxMultiUpload/Config/bootstrap.php");
+				
 		$dir = Configure::read('AMU.directory');
+		debug($dir);
 		if (strlen($dir) < 1) $dir = "files";
 
 		$lastDir = $this->last_dir ($model, $id);
@@ -39,7 +39,7 @@ class UploadHelper extends AppHelper {
 	}
 
 	public function edit ($model, $id) {
-		require_once (CORE_PATH . "/Plugin/AjaxMultiUpload/Config/bootstrap.php");
+		
 		$dir = Configure::read('AMU.directory');
 		if (strlen($dir) < 1) $dir = "files";
 

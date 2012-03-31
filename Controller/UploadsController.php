@@ -10,7 +10,7 @@
  *                and/or GNU GPL v3 (http://www.gnu.org/copyleft/gpl.html)
  */
  
-class UploadsController extends AjaxMultiUploadAppController {
+class UploadsController extends CakeAjaxUploaderAppController {
 
 	public $name = "Upload";
 	public $uses = null;
@@ -18,10 +18,11 @@ class UploadsController extends AjaxMultiUploadAppController {
 	// list of valid extensions, ex. array("jpeg", "xml", "bmp")
 	var $allowedExtensions = array();
 
-	function upload($dir=null) {
-        	require_once (CORE_PATH . "/Plugin/AjaxMultiUpload/Config/bootstrap.php");
+	public function upload($dir=null) {        	
 		// max file size in bytes
 		$size = Configure::read ('AMU.filesizeMB');
+		debug($size);
+		die;
 		if (strlen($size) < 1) $size = 4;
 		$relPath = Configure::read ('AMU.directory');
 		if (strlen($relPath) < 1) $relPath = "files";
@@ -46,6 +47,7 @@ class UploadsController extends AjaxMultiUploadAppController {
 		$result = $uploader->handleUpload($dir);
 		$this->set("result", htmlspecialchars(json_encode($result), ENT_NOQUOTES));
 	}
+
 
 }
 
