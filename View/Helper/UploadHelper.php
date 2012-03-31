@@ -53,7 +53,7 @@ class UploadHelper extends AppHelper {
 	
 	/**
 	 *
-	 * renders the view of one file
+	 * renders the view of all files in on dir.
 	 *
 	 * @param string $model the model
 	 * @param integer $id the id of the file

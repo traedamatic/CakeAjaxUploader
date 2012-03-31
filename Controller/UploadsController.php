@@ -11,18 +11,38 @@
  */
  
 class UploadsController extends CakeAjaxUploaderAppController {
-
+	
+	/**
+	 *
+	 * controller name
+	 */	
 	public $name = "Upload";
-	public $uses = null;
+	
+	/**
+	 * 
+	 * what model will be used
+	 */
+	public $uses = array();
 
-	// list of valid extensions, ex. array("jpeg", "xml", "bmp")
-	var $allowedExtensions = array();
+	/**
+	 * 
+	 * list of valid extensions, ex. array("jpeg", "xml", "bmp")
+	 */
+	private $allowedExtensions = array();
 
-	public function upload($dir=null) {        	
+	/**
+	 *
+	 * the upload function
+	 * @param string $dir the path of the dir
+	 * @access public
+	 */	
+	public function upload($dir=null) {
+		
+		debug($this->request);
+		die;
 		// max file size in bytes
 		$size = Configure::read ('AMU.filesizeMB');
-		debug($size);
-		die;
+		
 		if (strlen($size) < 1) $size = 4;
 		$relPath = Configure::read ('AMU.directory');
 		if (strlen($relPath) < 1) $relPath = "files";
@@ -46,6 +66,16 @@ class UploadsController extends CakeAjaxUploaderAppController {
 			$sizeLimit);
 		$result = $uploader->handleUpload($dir);
 		$this->set("result", htmlspecialchars(json_encode($result), ENT_NOQUOTES));
+	}
+	
+	/**
+	 *
+	 * index
+	 *
+	 * overview of all files that were uploaded	
+	 */	
+	public function index() {
+		
 	}
 
 
