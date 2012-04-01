@@ -41,8 +41,7 @@ class UploadHelper extends AppHelper {
 	 */	
 	public function __construct(View $view, $settings = array()) {
         parent::__construct($view, $settings);
-        debug($view->helpers);
-		
+        		
 		if(array_key_exists('Js',$view->helpers)) {
 			$this->jsEngine = true;
 			$this->Js = $view->Helpers->load('Js',array('Jquery'));
@@ -50,6 +49,8 @@ class UploadHelper extends AppHelper {
 		
 		$this->dir = Configure::read('AMU.directory');			
 		
+		
+		$this->Html->css(DS.CAKEAJAXUPLOADERPATH.DS.'css/cakeajaxuploader.css',null,array('inline' => false));
     }	
 	
 	
@@ -61,25 +62,25 @@ class UploadHelper extends AppHelper {
 	 * @param integer $id the id of the file
 	 * @access public
 	 */
-	public function view ($model, $id) {
-				
-		$lastDir = $this->_lastDir($model, $id);
-		$directory = WWW_ROOT . DS . $this->dir . DS . $lastDir;
-		$baseUrl = Router::url("/") . $this->dir . DS . $lastDir;
+	public function view ($path = null) {
+		if(is_null($path)) {
+			$fileDir = "";
+		} else {
+			$fileDir = $this->_parseDir($path);
+		}
+		
+		$directory = WWW_ROOT . DS . $this->dir . DS . $fileDir;
+		$wwwFilepath = Router::url("/") . $this->dir . DS . $fileDir;
 		$files = glob ("$directory/*");
-		$str = "<dt>" . __("Files") . "</dt>\n<dd>";
+		
+		$htmlResult = "<h1>" . __("Files - $wwwFilepath") . "</h1>\n";
+		$htmlResult .= '<ul class="filelisting">';
 		$count = 0;
 		foreach ($files as $file) {
-			$type = pathinfo($file, PATHINFO_EXTENSION);
-			$str .= "<img src='" . Router::url("/") . CAKEAJAXUPLOADERPATH."/img/fileicons/$type.png' /> ";
-			$filesize = $this->_formatBytes (filesize ($file));
-			$file = basename($file);
-			$url = $baseUrl . "/$file";
-			$str .= "<a href='$url'>" . $file. "</a> ($filesize)";
-			$str .= "<br />\n";
+			$htmlResult .= '<li class="file">'.$this->preview($file).'</li>';
 		}
-		$str .= "</dd>\n"; 
-		return $str;
+		$htmlResult .= "</ul>\n"; 
+		return $htmlResult;
 	}
 	
 	/**
@@ -112,6 +113,7 @@ class UploadHelper extends AppHelper {
 	/**
 	 *	 
 	 * renders a list of all files in the upload directory.
+	 * including subdirs
 	 * 
 	 * @author Nicolas Traeder <traeder@codebility.com> 
 	 * @access public
@@ -121,7 +123,7 @@ class UploadHelper extends AppHelper {
 		App::uses('File','Utility');
 		App::uses('Folder','Utility');
 		
-		$htmlResult = "<ul>";				
+		$htmlResult = "<ul class=\"filelisting\">";				
 		$directory = WWW_ROOT  . $this->dir;
 		
 		$Folder = new Folder($directory);				
@@ -165,8 +167,6 @@ class UploadHelper extends AppHelper {
 		$webroot = Router::url("/") . CAKEAJAXUPLOADERPATH;
 				
 		$uploadDir = $this->_parseDir($path);
-		
-		debug($uploadDir);
 		
 		$this->Html->css($webroot.DS.'css/fileuploader.css',null,array('inline' => false));
 		$this->Html->script($webroot.DS.'js/fileuploader.js',array('inline' => false));

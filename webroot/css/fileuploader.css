@@ -40,12 +40,3 @@
 .qq-upload-fail .qq-upload-failed-text {display:inline;}
 
 
-
-/**
- * Modification by Suman (srs81 @ GitHub)
- */
-#AjaxMultiUpload { 
-    margin-left: 10em;
-    margin-top: -2em;
-    vertical-align: top;
-}

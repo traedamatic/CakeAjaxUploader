@@ -1,6 +1,6 @@
-# AjaxMultiUpload Plugin for CakePHP
+#  CakeAjaxUploader Plugin for CakePHP a (AjaxMultiUpload) - Fork 
 
-A full-blown AJAX file uploader plugin for CakePHP 2.0.x and 2.1.
+A full-blown AJAX file uploader plugin for CakePHP 2.1.
 Using this, you can add multiple file upload behaviour to any or all
 of your models without having to modify the database or schema.
 
@@ -14,17 +14,18 @@ uploads.
 ### Download or checkout
 
 You can either download the ZIP file:
-https://github.com/srs81/CakePHP-AjaxMultiUpload/zipball/master
 
-or checkout the code (leave the Password field blank):
+https://github.com/traedamatic/CakeAjaxUploader/zipball/master
+
+or checkout the code
 
 ```
-git clone https://srs81@github.com/srs81/CakePHP-AjaxMultiUpload.git
+git clone git://github.com/traedamatic/CakeAjaxUploader.git
 ```
 
 ### Put it in the Plugin/ directory
 
-Unzip or move the contents of this to "Plugin/AjaxMultiUpload" under
+Unzip or move the contents of this to "Plugin/CakeAjaxUploader" under
 the app root.
 
 ### Add to bootstrap.php load
@@ -32,7 +33,13 @@ the app root.
 Open Config/bootstrap.php and add this line:
 
 ```php
-CakePlugin::load('AjaxMultiUpload');
+CakePlugin::load(array(
+					'CakeAjaxUploader' => array(
+								"bootstrap" => true,
+								"routes" => true
+								)
+					)
+				  );
 ```
 
 This will allow the plugin to load all the files that it needs.
@@ -53,6 +60,13 @@ be changed (see FAQ below.)
 You don't have to give it a 777 permission - just make sure the web 
 server user can write to this directory.
 
+### Routes
+
+A complete listing of all files in your upload path(including delete link) under:
+
+```
+http://www.yourserver.com/filelisting 
+```
 ### Add to controller 
 
 Add to Controller/AppController.php for use in all controllers, or 
@@ -64,18 +78,16 @@ var $helpers = array('AjaxMultiUpload.Upload');
 
 ### Add to views
 
-Let's say you had a "companies" table with a "id" primary key.
-
 Add this to your View/Companies/view.ctp:
 
 ```php
-echo $this->Upload->view('Company', $company['Company']['id']);
+echo $this->Upload->view("path/to/my/upload/folder");
 ```
 
 and this to your View/Companies/edit.ctp:
 
 ```php
-echo $this->Upload->edit('Company', $this->Form->fields['Company.id']);
+echo $this->Upload->edit("path/to/my/upload/folder");
 ```
 
 ## FAQ
@@ -118,7 +130,7 @@ Coming soon.
 
 ## Future Work
 
-* Deleting files is not supported in this version.
+* Rewrite the upload valums PHP script
 
 ## Thanks
 
@@ -130,5 +142,9 @@ and file icons from: http://www.splitbrain.org/projects/file_icons
 If you find this plugin useful, please consider a [donation to Shen
 Yun Performing Arts](https://www.shenyunperformingarts.org/support)
 to support traditional and historic Chinese culture.
+
+or
+
+http://cakefoundation.org/pages/donations ;)
 
 
