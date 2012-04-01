@@ -29,7 +29,21 @@ class UploadsController extends CakeAjaxUploaderAppController {
 	 * list of valid extensions, ex. array("jpeg", "xml", "bmp")
 	 */
 	private $allowedExtensions = array();
-
+	
+	/**
+	 * helpers
+	 * 
+	 */
+	
+	public $helpers = array('CakeAjaxUploader.Upload');
+	
+	/**
+ 	 *
+ 	 * components
+	 */
+	
+	public $components = array('Session');
+	
 	/**
 	 *
 	 * the upload function
@@ -38,8 +52,7 @@ class UploadsController extends CakeAjaxUploaderAppController {
 	 */	
 	public function upload($dir=null) {
 		
-		debug($this->request);
-		die;
+		
 		// max file size in bytes
 		$size = Configure::read ('AMU.filesizeMB');
 		
@@ -47,24 +60,26 @@ class UploadsController extends CakeAjaxUploaderAppController {
 		$relPath = Configure::read ('AMU.directory');
 		if (strlen($relPath) < 1) $relPath = "files";
 
-		$sizeLimit = $size * 1024 * 1024;
-                $this->layout = "ajax";
-	        Configure::write('debug', 0);
-		$directory = WWW_ROOT . DS . $relPath;
- 
-		if ($dir === null) {
-			$this->set("result", "{\"error\":\"Upload controller was passed a null value.\"}");
-			return;
-		}
+		$sizeLimit = $size * 1024 * 1024;        
+		$directory = WWW_ROOT . $relPath;
+ 		
 		// Replace underscores delimiter with slash
-		$dir = str_replace ("___", "/", $dir);
-		$dir = $directory . DS . "$dir/";
-		if (!file_exists($dir)) {
-			mkdir($dir, 0777, true);
+		if($dir != false || !is_null($dir)) {			
+			$dir = str_replace ("___", "/", $dir);
+			$dir = $directory . DS . "$dir/";
+			if (!file_exists($dir)) {
+				mkdir($dir, 0777, true);
+			}
+		} else {
+			$dir = $directory . DS;
 		}
-		$uploader = new qqFileUploader($this->allowedExtensions, 
-			$sizeLimit);
+		
+		
+		$uploader = new qqFileUploader($this->allowedExtensions,$sizeLimit);
 		$result = $uploader->handleUpload($dir);
+		
+		Configure::write('debug', 0);
+		$this->layout = "ajax";	    		
 		$this->set("result", htmlspecialchars(json_encode($result), ENT_NOQUOTES));
 	}
 	
@@ -75,6 +90,35 @@ class UploadsController extends CakeAjaxUploaderAppController {
 	 * overview of all files that were uploaded	
 	 */	
 	public function index() {
+		
+		$this->set('filePath', WWW_ROOT.Configure::read('AMU.directory'));		
+		
+	}
+	
+	/**
+	 *
+	 * delete a file
+	 *
+	 */
+	
+	public function delete($file = null) {
+		if(is_null($file)) {
+			$this->Session->setFlash(__('File parameter is missing'));
+			$this->redirect(array('action' => 'index'));
+		}
+		
+		$file = base64_decode($file);
+		if(file_exists($file)) {
+			if(unlink($file)) {
+				$this->Session->setFlash(__('File deleted!'));				
+			} else {
+				$this->Session->setFlash(__('Unable to delete File'));					
+			}
+		} else {
+			$this->Session->setFlash(__('File does not exists!'));					
+		}
+		
+		$this->redirect(array('action' => 'index'));
 		
 	}
 

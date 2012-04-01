@@ -22,12 +22,14 @@ class UploadHelper extends AppHelper {
 	public $helpers = array('Html');
 	
 	/**
- 	 * upload dir 
+ 	 * upload dir
+ 	 * @author Nicolas Traeder <traeder@codebility.com>
 	 */
 	private $dir = null;
 	
 	/**
 	 * Cake Js engine active
+	 * @author Nicolas Traeder <traeder@codebility.com>
 	 */
 	
 	private $jsEngine = false;
@@ -35,7 +37,7 @@ class UploadHelper extends AppHelper {
 	/**
 	 *
 	 * contruct function
-	 *
+	 * @author Nicolas Traeder <traeder@codebility.com>
 	 */	
 	public function __construct(View $view, $settings = array()) {
         parent::__construct($view, $settings);
@@ -82,20 +84,89 @@ class UploadHelper extends AppHelper {
 	
 	/**
 	 *
+	 * renders preview element of the file
+	 * 
+	 * @author Nicolas Traeder <traeder@codebility.com> 
+	 * @access public
+	 * @return string the html markup of the preview element 
+	 */
+	public function preview($file = null) {
+		if(is_null($file)) return "";
+		$htmlResult = "";
+		$wwwFilepath = str_replace(WWW_ROOT,'/',$file);
+		$type = pathinfo($file, PATHINFO_EXTENSION);
+		$filesize = $this->_formatBytes(filesize ($file));
+		$filename = basename($file);
+		
+		$htmlResult .= $this->Html->image(DS.CAKEAJAXUPLOADERPATH.DS."/img/fileicons/$type.png");
+		$htmlResult .= $this->Html->link($filename,$wwwFilepath);
+		$htmlResult .= " ($filesize) ";
+		$htmlResult .= $this->Html->link(__('Delete'),array('controller' => 'uploads',
+															'action' => 'delete',
+															'plugin' => 'cake_ajax_uploader',base64_encode($file)
+															)
+										);		
+		return $htmlResult;
+	}
+	
+	/**
+	 *	 
+	 * renders a list of all files in the upload directory.
+	 * 
+	 * @author Nicolas Traeder <traeder@codebility.com> 
+	 * @access public
+	 * @return string the html markup of the list 
+	 */
+	public function listing() {
+		App::uses('File','Utility');
+		App::uses('Folder','Utility');
+		
+		$htmlResult = "<ul>";				
+		$directory = WWW_ROOT  . $this->dir;
+		
+		$Folder = new Folder($directory);				
+		$dirsAndFiles = $Folder->read();
+		
+		//folders
+		foreach($dirsAndFiles[0] as $dir) {			
+			$Folder = new Folder($directory.DS.$dir);
+			//does not search an depper dirs..
+			$filesInDir = $Folder->findRecursive();			
+			$htmlResult .= '<li class="folder">'.$dir.'</li>';
+			foreach($filesInDir as $file) {
+				$htmlResult .= '<li class="level_1 file">'.$this->preview($file).'</li>';
+			}
+		}
+		
+		//files
+		foreach($dirsAndFiles[1] as $file) {			
+			$htmlResult .= '<li class="file">'.$this->preview($directory.DS.$file).'</li>';
+		}
+		
+		$htmlResult .= "</ul>";
+		
+		return $htmlResult;
+	}
+	
+	/**
+	 *
 	 * renders the upload button
 	 *
 	 * @param string $model the model
 	 * @param integer $id the id of the file
 	 * @access public
+	 * @modified Nicolas Traeder <traeder@codebility.com>
 	 */	
-	public function edit ($model, $id) {		
+	public function edit ($path = "") {		
 
-		$str = $this->view ($model, $id);
+		//$str = $this->view ($model, $id);
+		$str = "";
 				
 		$webroot = Router::url("/") . CAKEAJAXUPLOADERPATH;
+				
+		$uploadDir = $this->_parseDir($path);
 		
-		// Replace / with underscores for Ajax controller
-		$lastDir = str_replace ("/", "___", $this->_lastDir ($model, $id));
+		debug($uploadDir);
 		
 		$this->Html->css($webroot.DS.'css/fileuploader.css',null,array('inline' => false));
 		$this->Html->script($webroot.DS.'js/fileuploader.js',array('inline' => false));
@@ -113,7 +184,7 @@ class UploadHelper extends AppHelper {
 			$script = "	          
 				var uploader = new qq.FileUploader({
 					element: document.getElementById('AjaxMultiUpload'),
-					action: '$webroot/uploads/upload/$lastDir/',
+					action: '$webroot/uploads/upload/$uploadDir/',
 					debug: true
 				});           
 			";
@@ -126,7 +197,7 @@ class UploadHelper extends AppHelper {
 				function createUploader(){            
 					var uploader = new qq.FileUploader({
 						element: document.getElementById('AjaxMultiUpload'),
-						action: '$webroot/uploads/upload/$lastDir/',
+						action: '$webroot/uploads/upload/$uploadDir/',
 						debug: true
 					});           
 				}
@@ -140,8 +211,12 @@ class UploadHelper extends AppHelper {
 	}
 
 	// Function to create the "last" set of directories for uploading
-	private function _lastDir ($model, $id) {
-		return $model . "/" . $id;
+	private function _parseDir ($path = "") {
+		if(empty($path) || strlen($path) == 0) {
+			return false;
+		}
+		$return = str_replace ("/", "___", $path);
+		return $return;
 	}
 
 	// From http://php.net/manual/en/function.filesize.php
