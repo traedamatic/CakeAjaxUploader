@@ -171,8 +171,10 @@ class UploadHelper extends AppHelper {
 		$this->Html->css($webroot.DS.'css/fileuploader.css',null,array('inline' => false));
 		$this->Html->script($webroot.DS.'js/fileuploader.js',array('inline' => false));
 		
+		$ajaxUploaderId = "ajaxuploader-".md5($path.time());		
+		
 		$str .= '
-			<div id="AjaxMultiUpload">
+			<div id="'.$ajaxUploaderId.'">
 				<noscript>
 					 <p>Please enable JavaScript to use file uploader.</p>
 				</noscript>
@@ -183,7 +185,7 @@ class UploadHelper extends AppHelper {
 
 			$script = "	          
 				var uploader = new qq.FileUploader({
-					element: document.getElementById('AjaxMultiUpload'),
+					element: document.getElementById('$ajaxUploaderId'),
 					action: '$webroot/uploads/upload/$uploadDir/',
 					debug: true
 				});           
@@ -196,7 +198,7 @@ class UploadHelper extends AppHelper {
 			$script = "
 				function createUploader(){            
 					var uploader = new qq.FileUploader({
-						element: document.getElementById('AjaxMultiUpload'),
+						element: document.getElementById('$ajaxUploaderId'),
 						action: '$webroot/uploads/upload/$uploadDir/',
 						debug: true
 					});           
