@@ -65,8 +65,8 @@ class UploadHelper extends AppHelper {
 	public function view ($path = null) {
 		if(is_null($path)) {
 			$fileDir = "";
-		} else {
-			$fileDir = $this->_parseDir($path);
+		} else {			
+			$fileDir = $path;
 		}
 		
 		$directory = WWW_ROOT . DS . $this->dir . DS . $fileDir;
@@ -102,11 +102,18 @@ class UploadHelper extends AppHelper {
 		$htmlResult .= $this->Html->image(DS.CAKEAJAXUPLOADERPATH.DS."/img/fileicons/$type.png");
 		$htmlResult .= $this->Html->link($filename,$wwwFilepath);
 		$htmlResult .= " ($filesize) ";
-		$htmlResult .= $this->Html->link(__('Delete'),array('controller' => 'uploads',
-															'action' => 'delete',
-															'plugin' => 'cake_ajax_uploader',base64_encode($file)
-															)
-										);		
+		
+		$url = array(
+						 'controller' => 'uploads',
+						  'action' => 'delete',
+						  'plugin' => 'cake_ajax_uploader',base64_encode($file),						  
+						  );
+		
+		if(isset($this->request->params['prefix'])) {
+			 $url[$this->request->params['prefix']] = false;	 
+		}		
+		
+		$htmlResult .= $this->Html->link(__('Delete'),$url);		
 		return $htmlResult;
 	}
 	
@@ -171,10 +178,10 @@ class UploadHelper extends AppHelper {
 		$this->Html->css($webroot.DS.'css/fileuploader.css',null,array('inline' => false));
 		$this->Html->script($webroot.DS.'js/fileuploader.js',array('inline' => false));
 		
-		$ajaxUploaderId = "ajaxuploader-".md5($path.time());		
+	  $ajaxUploaderId = "ajaxuploader-".md5($path.time());		
 		
 		$str .= '
-			<div id="'.$ajaxUploaderId.'">
+			<div class="ajaxuploader-container" id="'.$ajaxUploaderId.'">
 				<noscript>
 					 <p>Please enable JavaScript to use file uploader.</p>
 				</noscript>
