@@ -85,6 +85,28 @@ class UploadHelper extends AppHelper {
 	
 	/**
 	 *
+	 * return file of one dir as array
+	 * 	 
+	 * @param string the path of the dir
+	 * @return array a array of all files in that dir
+	 * @access public
+	 */
+	public function returnFiles($path = null) {
+	  if(is_null($path)) {
+			$fileDir = "";
+		} else {			
+			$fileDir = $path;
+		}
+		$directory = WWW_ROOT . DS . $this->dir . DS . $fileDir;
+		$files = glob ("$directory/*");
+		
+		return array_map(function($file){
+					return str_replace(WWW_ROOT,"",$file);
+			 },$files);		
+	}
+	
+	/**
+	 *
 	 * renders preview element of the file
 	 * 
 	 * @author Nicolas Traeder <traeder@codebility.com> 

@@ -99,12 +99,13 @@ class UploadsController extends CakeAjaxUploaderAppController {
 	 *
 	 * delete a file
 	 *
-	 */
-	
-	public function delete($file = null) {
+	 * @param string the file name
+	 * @author Nicolas Traeder traeder@codebility.com
+	 */	
+	public function delete($file = null) {		
 		if(is_null($file)) {
 			$this->Session->setFlash(__('File parameter is missing'));
-			$this->redirect(array('action' => 'index'));
+			$this->redirect($this->referer());
 		}
 		
 		$file = base64_decode($file);
@@ -118,9 +119,10 @@ class UploadsController extends CakeAjaxUploaderAppController {
 			$this->Session->setFlash(__('File does not exists!'));					
 		}
 		
-		$this->redirect(array('action' => 'index'));
+		$this->redirect($this->referer());
 		
 	}
+
 
 
 }
